@@ -2,6 +2,8 @@ import http from "k6/http";
 import { getHeaders } from "./user.utils";
 import { Role, Session, getRolesOfStructure } from ".";
 import { check, bytes } from "k6";
+//@ts-ignore
+import { FormData } from "https://jslib.k6.io/formdata/0.0.2/index.js";
 
 const rootUrl = __ENV.ROOT_URL;
 
