@@ -3,7 +3,6 @@ import { getHeaders } from "./user.utils";
 import { Role, Session, getRolesOfStructure } from ".";
 import { check, bytes } from "k6";
 
-
 const rootUrl = __ENV.ROOT_URL;
 
 export type Structure = {
@@ -32,73 +31,94 @@ export function getUsersOfSchool(school: Structure, session: Session) {
   return JSON.parse(<string>res.body);
 }
 
-
-
 export function activateUsers(structure: Structure, session: Session) {
-  let res = http.get(`${rootUrl}/directory/structure/${structure.id}/users`, { headers: getHeaders(session) })
+  let res = http.get(`${rootUrl}/directory/structure/${structure.id}/users`, {
+    headers: getHeaders(session),
+  });
   check(res, {
-    'fetch structure users': (r) => r.status == 200
-  })
+    "fetch structure users": (r) => r.status == 200,
+  });
   const users = JSON.parse(<string>res.body);
-  for(let i = 0; i < users.length; i++) {
-    const user = users[i]
-    if(user.code) {
-      const fd: any = {}
-      fd['login'] = user.login
-      fd['activationCode'] = user.code
-      fd['password'] = 'password'
-      fd['confirmPassword'] = 'password'
-      fd['acceptCGU'] = 'true'
-      res = http.post(`${rootUrl}/auth/activation`, fd, {redirects: 0, headers: {Host: 'localhost'}})
+  for (let i = 0; i < users.length; i++) {
+    const user = users[i];
+    if (user.code) {
+      const fd: any = {};
+      fd["login"] = user.login;
+      fd["activationCode"] = user.code;
+      fd["password"] = "password";
+      fd["confirmPassword"] = "password";
+      fd["acceptCGU"] = "true";
+      res = http.post(`${rootUrl}/auth/activation`, fd, {
+        redirects: 0,
+        headers: { Host: "localhost" },
+      });
       check(res, {
-        'activate user': (r) => r.status === 302
-      })
+        "activate user": (r) => r.status === 302,
+      });
     }
   }
 }
 
-export function linkRoleToUsers(structure: Structure, role: Role, session: Session) {
+export function linkRoleToUsers(
+  structure: Structure,
+  role: Role,
+  session: Session,
+) {
   const roles = getRolesOfStructure(structure.id, session);
-  const teacherRoles = roles.filter(role => role.name === `Teachers from group ${structure.name}.` ||
-                                            role.name === `Enseignants du groupe ${structure.name}.`)[0];
-  if(teacherRoles.roles.indexOf(role.name) >= 0) {
-    console.log('Role already attributed to teachers')
+  const teacherRoles = roles.filter(
+    (role) =>
+      role.name === `Teachers from group ${structure.name}.` ||
+      role.name === `Enseignants du groupe ${structure.name}.`,
+  )[0];
+  if (teacherRoles.roles.indexOf(role.name) >= 0) {
+    console.log("Role already attributed to teachers");
   } else {
     const headers = getHeaders(session);
-    headers['content-type'] = 'application/json'
-    const params = { headers }
+    headers["content-type"] = "application/json";
+    const params = { headers };
     const payload = JSON.stringify({
       groupId: teacherRoles.id,
-      roleIds: (teacherRoles.roles || []).concat([role.id])
-    })
-    const res = http.post(`${rootUrl}/appregistry/authorize/group?schoolId=${structure.id}`, payload, params)
+      roleIds: (teacherRoles.roles || []).concat([role.id]),
+    });
+    const res = http.post(
+      `${rootUrl}/appregistry/authorize/group?schoolId=${structure.id}`,
+      payload,
+      params,
+    );
     check(res, {
-      'link role to structure': (r) => r.status == 200
-    })
+      "link role to structure": (r) => r.status == 200,
+    });
   }
 }
 
-export function createStructure(schoolName: string, teachers: bytes, session: Session) {
+export function createStructure(
+  schoolName: string,
+  teachers: bytes,
+  session: Session,
+) {
   let ecoleAudience = getSchoolByName(schoolName, session);
-  if(ecoleAudience) {
-    console.log("School already exists")
+  if (ecoleAudience) {
+    console.log("School already exists");
   } else {
     const fd = new FormData();
-    fd.append('type', 'CSV');
-    fd.append('structureName', schoolName);
+    fd.append("type", "CSV");
+    fd.append("structureName", schoolName);
     //@ts-ignore
-    fd.append('Teacher', http.file(teachers, 'enseignants.csv'));
+    fd.append("Teacher", http.file(teachers, "enseignants.csv"));
     const headers = getHeaders(session);
     //@ts-ignore
-    headers['Content-Type'] = 'multipart/form-data; boundary=' + fd.boundary
+    headers["Content-Type"] = "multipart/form-data; boundary=" + fd.boundary;
     const params = { headers };
     //@ts-ignore
-    const res = http.post(`${rootUrl}/directory/wizard/import`, fd.body(), params);
+    const res = http.post(
+      `${rootUrl}/directory/wizard/import`,
+      fd.body(),
+      params,
+    );
     check(res, {
-      'import structure is ok': (r) => r.status == 200
-    })
-    ecoleAudience = getSchoolByName(schoolName, session)
+      "import structure is ok": (r) => r.status == 200,
+    });
+    ecoleAudience = getSchoolByName(schoolName, session);
   }
   return ecoleAudience;
 }
-
