@@ -163,7 +163,7 @@ function V(s, e, t) {
     const o = new I();
     o.append("type", "CSV"), o.append("structureName", s);
     let n, a, i;
-    "teachers" in e ? (n = e.teachers, a = e.students, i = e.responsables) : n = e, o.append("Teacher", c.file(n, "enseignants.csv")), a && o.append("Student", c.file(n, "eleves.csv")), i && o.append("Relative", c.file(i, "responsables.csv"));
+    "teachers" in e ? (n = e.teachers, a = e.students, i = e.responsables) : n = e, o.append("Teacher", c.file(n, "enseignants.csv")), a && o.append("Student", c.file(a, "eleves.csv")), i && o.append("Relative", c.file(i, "responsables.csv"));
     const p = u(t);
     p["Content-Type"] = "multipart/form-data; boundary=" + o.boundary;
     const d = { headers: p }, $ = c.post(

@@ -124,7 +124,7 @@ export function createStructure(
     }
     fd.append("Teacher", http.file(teachers, "enseignants.csv"));
     if (students) {
-      fd.append("Student", http.file(teachers, "eleves.csv"));
+      fd.append("Student", http.file(students, "eleves.csv"));
     }
     if (responsables) {
       fd.append("Relative", http.file(responsables, "responsables.csv"));
