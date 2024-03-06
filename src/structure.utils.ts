@@ -12,6 +12,12 @@ export type Structure = {
   name: string;
 };
 
+export type StructureInitData = {
+  teachers: bytes, 
+  students: bytes,
+  responsables: bytes
+}
+
 export function getSchoolByName(name: string, session: Session) {
   let ecoles = http.get(`${rootUrl}/directory/api/ecole`, {
     headers: getHeaders(session),
@@ -95,7 +101,7 @@ export function linkRoleToUsers(
 
 export function createStructure(
   schoolName: string,
-  teachers: bytes,
+  users: bytes | StructureInitData,
   session: Session,
 ) {
   let ecoleAudience = getSchoolByName(schoolName, session);
@@ -106,7 +112,23 @@ export function createStructure(
     fd.append("type", "CSV");
     fd.append("structureName", schoolName);
     //@ts-ignore
+    let teachers: bytes;
+    let students: bytes | undefined;
+    let responsables: bytes | undefined;
+    if('teachers'in users) {
+      teachers = (<StructureInitData>users).teachers;
+      students = (<StructureInitData>users).students;
+      responsables = (<StructureInitData>users).responsables;
+    } else {
+      teachers = <bytes>users;
+    }
     fd.append("Teacher", http.file(teachers, "enseignants.csv"));
+    if(students) {
+      fd.append("Student", http.file(teachers, "eleves.csv"));
+    }
+    if(responsables) {
+      fd.append("Relative", http.file(responsables, "responsables.csv"));
+    }
     const headers = getHeaders(session);
     //@ts-ignore
     headers["Content-Type"] = "multipart/form-data; boundary=" + fd.boundary;
