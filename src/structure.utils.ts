@@ -13,10 +13,10 @@ export type Structure = {
 };
 
 export type StructureInitData = {
-  teachers: bytes, 
-  students: bytes,
-  responsables: bytes
-}
+  teachers: bytes;
+  students: bytes;
+  responsables: bytes;
+};
 
 export function getSchoolByName(name: string, session: Session) {
   let ecoles = http.get(`${rootUrl}/directory/api/ecole`, {
@@ -115,7 +115,7 @@ export function createStructure(
     let teachers: bytes;
     let students: bytes | undefined;
     let responsables: bytes | undefined;
-    if('teachers'in users) {
+    if ("teachers" in users) {
       teachers = (<StructureInitData>users).teachers;
       students = (<StructureInitData>users).students;
       responsables = (<StructureInitData>users).responsables;
@@ -123,10 +123,10 @@ export function createStructure(
       teachers = <bytes>users;
     }
     fd.append("Teacher", http.file(teachers, "enseignants.csv"));
-    if(students) {
+    if (students) {
       fd.append("Student", http.file(teachers, "eleves.csv"));
     }
-    if(responsables) {
+    if (responsables) {
       fd.append("Relative", http.file(responsables, "responsables.csv"));
     }
     const headers = getHeaders(session);
