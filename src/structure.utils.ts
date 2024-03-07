@@ -1,7 +1,7 @@
 import http from "k6/http";
 import { getHeaders } from "./user.utils";
 import { Role, Session, getRolesOfStructure } from ".";
-import { check, bytes } from "k6";
+import { check, bytes, fail } from "k6";
 //@ts-ignore
 import { FormData } from "https://jslib.k6.io/formdata/0.0.2/index.js";
 
@@ -55,26 +55,30 @@ export function activateUsers(structure: Structure, session: Session) {
   let res = http.get(`${rootUrl}/directory/structure/${structure.id}/users`, {
     headers: getHeaders(session),
   });
-  check(res, {
-    "fetch structure users": (r) => r.status == 200,
-  });
+  if (res.status != 200) {
+    fail(`Cannot fetch users of structure ${structure.id} : ${res}`);
+  }
   const users = JSON.parse(<string>res.body);
   for (let i = 0; i < users.length; i++) {
     const user = users[i];
-    if (user.code) {
-      const fd: any = {};
-      fd["login"] = user.login;
-      fd["activationCode"] = user.code;
-      fd["password"] = "password";
-      fd["confirmPassword"] = "password";
-      fd["acceptCGU"] = "true";
-      res = http.post(`${rootUrl}/auth/activation`, fd, {
-        redirects: 0,
-        headers: { Host: "localhost" },
-      });
-      check(res, {
-        "activate user": (r) => r.status === 302,
-      });
+    activateUser(user);
+  }
+}
+
+export function activateUser(user: any) {
+  if (user.code) {
+    const fd: any = {};
+    fd["login"] = user.login;
+    fd["activationCode"] = user.code;
+    fd["password"] = "password";
+    fd["confirmPassword"] = "password";
+    fd["acceptCGU"] = "true";
+    const res = http.post(`${rootUrl}/auth/activation`, fd, {
+      redirects: 0,
+      headers: { Host: "localhost" },
+    });
+    if (res.status !== 302) {
+      fail(`Could not activate user ${user.login} : ${res}`);
     }
   }
 }
