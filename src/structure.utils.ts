@@ -18,6 +18,18 @@ export type StructureInitData = {
   responsables: bytes;
 };
 
+export type BroadcastGroup = {
+  id: string;
+  name: string;
+  displayName: string;
+  labels: string[];
+  autolinkTargetAllStructs: boolean;
+  autolinkTargetStructs: string[];
+  autolinkUsersFromGroups: string[];
+  type: string;
+  structures: Structure[];
+};
+
 export function getSchoolByName(name: string, session: Session) {
   let ecoles = http.get(`${rootUrl}/directory/api/ecole`, {
     headers: getHeaders(session),
@@ -146,4 +158,69 @@ export function createStructure(
     ecoleAudience = getSchoolByName(schoolName, session);
   }
   return ecoleAudience;
+}
+
+export function createBroadcastGroup(
+  broadcastListName: string,
+  school: Structure,
+  session: Session,
+): BroadcastGroup {
+  const headers = getHeaders(session);
+  headers["content-type"] = "application/json";
+  let res = http.get(
+    `${rootUrl}/directory/group/admin/list?translate=false&structureId=${school.id}`,
+    { headers },
+  );
+  let broadcastGroup = JSON.parse(<string>res.body).filter(
+    (e: any) => e.subType === "BroadcastGroup" && e.name === broadcastListName,
+  )[0];
+  if (broadcastGroup) {
+    console.log("Broadcast group already existed");
+  } else {
+    console.log("Creating broadcast group");
+    let payload = JSON.stringify({
+      name: broadcastListName,
+      structureId: school.id,
+      subType: "BroadcastGroup",
+    });
+    res = http.post(`${rootUrl}/directory/group`, payload, { headers });
+    check(res, {
+      "create broadcast group": (r) => r.status === 201,
+    });
+    const blId = JSON.parse(<string>res.body).id;
+    payload = JSON.stringify({
+      name: broadcastListName,
+      autolinkTargetAllStructs: true,
+      autolinkTargetStructs: [],
+      autolinkUsersFromGroups: ["Teacher"],
+    });
+    res = http.put(`${rootUrl}/directory/group/${blId}`, payload, { headers });
+    check(res, {
+      "set broadcast group for teachers": (r) => r.status === 200,
+    });
+
+    const teacherGroupId = getTeacherRole(school, session).id;
+    res = http.post(
+      `${rootUrl}/communication/v2/group/${teacherGroupId}/communique/${blId}`,
+      "{}",
+      { headers },
+    );
+    check(res, {
+      "open comm rule for broadcast group for teachers": (r) =>
+        r.status === 200,
+    });
+
+    res = http.get(`${rootUrl}/communication/group/${blId}`, { headers });
+    broadcastGroup = JSON.parse(<string>res.body);
+  }
+  return broadcastGroup;
+}
+
+function getTeacherRole(structure: Structure, session: Session) {
+  const roles = getRolesOfStructure(structure.id, session);
+  return roles.filter(
+    (role) =>
+      role.name === `Teachers from group ${structure.name}.` ||
+      role.name === `Enseignants du groupe ${structure.name}.`,
+  )[0];
 }
