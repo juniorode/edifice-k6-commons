@@ -71,31 +71,32 @@ export function linkRoleToUsers(
   structure: Structure,
   role: Role,
   session: Session,
+  groupNames: string[]
 ) {
   const roles = getRolesOfStructure(structure.id, session);
-  const teacherRoles = roles.filter(
-    (role) =>
-      role.name === `Teachers from group ${structure.name}.` ||
-      role.name === `Enseignants du groupe ${structure.name}.`,
-  )[0];
-  if (teacherRoles.roles.indexOf(role.name) >= 0) {
-    console.log("Role already attributed to teachers");
-  } else {
-    const headers = getHeaders(session);
-    headers["content-type"] = "application/json";
-    const params = { headers };
-    const payload = JSON.stringify({
-      groupId: teacherRoles.id,
-      roleIds: (teacherRoles.roles || []).concat([role.id]),
-    });
-    const res = http.post(
-      `${rootUrl}/appregistry/authorize/group?schoolId=${structure.id}`,
-      payload,
-      params,
-    );
-    check(res, {
-      "link role to structure": (r) => r.status == 200,
-    });
+  const teacherRoless = roles.filter(
+    (role) => groupNames.indexOf(role.name) >=0
+  );
+  for(let teacherRoles of teacherRoless) {
+    if (teacherRoles.roles.indexOf(role.name) >= 0) {
+      console.log("Role already attributed to teachers");
+    } else {
+      const headers = getHeaders(session);
+      headers["content-type"] = "application/json";
+      const params = { headers };
+      const payload = JSON.stringify({
+        groupId: teacherRoles.id,
+        roleIds: (teacherRoles.roles || []).concat([role.id]),
+      });
+      const res = http.post(
+        `${rootUrl}/appregistry/authorize/group?schoolId=${structure.id}`,
+        payload,
+        params,
+      );
+      check(res, {
+        "link role to structure": (r) => r.status == 200,
+      });
+    }
   }
 }
 
