@@ -70,14 +70,14 @@ export function activateUsers(structure: Structure, session: Session) {
 export function linkRoleToUsers(
   structure: Structure,
   role: Role,
+  groupNames: string[],
   session: Session,
-  groupNames: string[]
 ) {
   const roles = getRolesOfStructure(structure.id, session);
   const teacherRoless = roles.filter(
-    (role) => groupNames.indexOf(role.name) >=0
+    (role) => groupNames.indexOf(role.name) >= 0,
   );
-  for(let teacherRoles of teacherRoless) {
+  for (let teacherRoles of teacherRoless) {
     if (teacherRoles.roles.indexOf(role.name) >= 0) {
       console.log("Role already attributed to teachers");
     } else {

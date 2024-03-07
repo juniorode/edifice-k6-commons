@@ -4,11 +4,11 @@ var f = (s, e, t) => (_(s, typeof e != "symbol" ? e + "" : e, t), t);
 import c from "k6/http";
 import { check as l } from "k6";
 import { FormData as I } from "https://jslib.k6.io/formdata/0.0.2/index.js";
-const m = {
+const O = {
   COOKIE: 0,
   OAUTH2: 1
 };
-class S {
+class b {
   constructor(e, t, r, o) {
     f(this, "expiresAt");
     f(this, "token");
@@ -25,15 +25,15 @@ class S {
 }
 const R = __ENV.BASE_URL, w = 30 * 60, g = __ENV.ROOT_URL, u = function(s) {
   let e;
-  return s ? s.mode === m.COOKIE ? e = { "x-xsrf-token": s.getCookie("XSRF-TOKEN") || "" } : s.mode === m.OAUTH2 ? e = { Authorization: `Bearer ${s.token}` } : e = {} : e = {}, e;
-}, j = function(s, e) {
+  return s ? s.mode === O.COOKIE ? e = { "x-xsrf-token": s.getCookie("XSRF-TOKEN") || "" } : s.mode === O.OAUTH2 ? e = { Authorization: `Bearer ${s.token}` } : e = {} : e = {}, e;
+}, E = function(s, e) {
   const t = c.get(`${g}/conversation/visible?search=${s}`, {
     headers: u(e)
   });
   return l(t, {
     "should get an OK response": (o) => o.status == 200
   }), t.json("users")[0].id;
-}, x = function(s) {
+}, j = function(s) {
   const e = c.get(`${g}/auth/oauth2/userinfo`, {
     headers: u(s)
   });
@@ -52,15 +52,15 @@ const R = __ENV.BASE_URL, w = 30 * 60, g = __ENV.ROOT_URL, u = function(s) {
     redirects: 0
   });
   l(r, {
-    "should redirect connected user to login page": (a) => a.status === 302,
-    "should have set an auth cookie": (a) => a.cookies.oneSessionId !== null && a.cookies.oneSessionId !== void 0
+    "should redirect connected user to login page": (n) => n.status === 302,
+    "should have set an auth cookie": (n) => n.cookies.oneSessionId !== null && n.cookies.oneSessionId !== void 0
   }), c.cookieJar().set(g, "oneSessionId", r.cookies.oneSessionId[0].value);
-  const n = Object.keys(r.cookies).map((a) => ({ name: a, value: r.cookies[a][0].value }));
-  return new S(
+  const a = Object.keys(r.cookies).map((n) => ({ name: n, value: r.cookies[n][0].value }));
+  return new b(
     r.cookies.oneSessionId[0].value,
-    m.COOKIE,
+    O.COOKIE,
     w,
-    n
+    a
   );
 }, J = function(s, e, t, r) {
   let o = {
@@ -70,18 +70,18 @@ const R = __ENV.BASE_URL, w = 30 * 60, g = __ENV.ROOT_URL, u = function(s) {
     client_id: t,
     client_secret: r,
     scope: "timeline userbook blog lvs actualites pronote schoolbook support viescolaire zimbra conversation directory homeworks userinfo workspace portal cas sso presences incidents competences diary edt infra auth"
-  }, n = c.post(`${g}/auth/oauth2/token`, o, {
+  }, a = c.post(`${g}/auth/oauth2/token`, o, {
     redirects: 0
   });
-  l(n, {
+  l(a, {
     "should get an OK response for authentication": (i) => i.status == 200,
     "should have set an access token": (i) => !!i.json("access_token")
   });
-  const a = n.json("access_token");
-  return new S(
-    a,
-    m.OAUTH2,
-    n.json("expires_in")
+  const n = a.json("access_token");
+  return new b(
+    n,
+    O.OAUTH2,
+    a.json("expires_in")
   );
 }, K = function(s, e) {
   const t = c.get(`${R}/metrics`, {
@@ -97,12 +97,12 @@ const R = __ENV.BASE_URL, w = 30 * 60, g = __ENV.ROOT_URL, u = function(s) {
       return parseFloat(o.substring(s.length + 1).trim());
   return console.error("Metric", s, "not found"), null;
 }, h = __ENV.ROOT_URL;
-function O(s, e) {
+function S(s, e) {
   let t = c.get(`${h}/directory/api/ecole`, {
     headers: u(e)
   });
   const r = JSON.parse(t.body).result;
-  return Object.keys(r || {}).map((n) => r[n]).filter((n) => n.name === s)[0];
+  return Object.keys(r || {}).map((a) => r[a]).filter((a) => a.name === s)[0];
 }
 function B(s, e) {
   let t = c.get(`${h}/directory/structure/${s.id}/users`, {
@@ -121,10 +121,10 @@ function H(s, e) {
   });
   const r = JSON.parse(t.body);
   for (let o = 0; o < r.length; o++) {
-    const n = r[o];
-    if (n.code) {
-      const a = {};
-      a.login = n.login, a.activationCode = n.code, a.password = "password", a.confirmPassword = "password", a.acceptCGU = "true", t = c.post(`${h}/auth/activation`, a, {
+    const a = r[o];
+    if (a.code) {
+      const n = {};
+      n.login = a.login, n.activationCode = a.code, n.password = "password", n.confirmPassword = "password", n.acceptCGU = "true", t = c.post(`${h}/auth/activation`, n, {
         redirects: 0,
         headers: { Host: "localhost" }
       }), l(t, {
@@ -133,52 +133,53 @@ function H(s, e) {
     }
   }
 }
-function L(s, e, t) {
-  const o = U(s.id, t).filter(
-    (n) => n.name === `Teachers from group ${s.name}.` || n.name === `Enseignants du groupe ${s.name}.`
-  )[0];
-  if (o.roles.indexOf(e.name) >= 0)
-    console.log("Role already attributed to teachers");
-  else {
-    const n = u(t);
-    n["content-type"] = "application/json";
-    const a = { headers: n }, i = JSON.stringify({
-      groupId: o.id,
-      roleIds: (o.roles || []).concat([e.id])
-    }), p = c.post(
-      `${h}/appregistry/authorize/group?schoolId=${s.id}`,
-      i,
-      a
-    );
-    l(p, {
-      "link role to structure": (d) => d.status == 200
-    });
-  }
+function L(s, e, t, r) {
+  const a = U(s.id, r).filter(
+    (n) => t.indexOf(n.name) >= 0
+  );
+  for (let n of a)
+    if (n.roles.indexOf(e.name) >= 0)
+      console.log("Role already attributed to teachers");
+    else {
+      const i = u(r);
+      i["content-type"] = "application/json";
+      const p = { headers: i }, d = JSON.stringify({
+        groupId: n.id,
+        roleIds: (n.roles || []).concat([e.id])
+      }), k = c.post(
+        `${h}/appregistry/authorize/group?schoolId=${s.id}`,
+        d,
+        p
+      );
+      l(k, {
+        "link role to structure": (m) => m.status == 200
+      });
+    }
 }
 function V(s, e, t) {
-  let r = O(s, t);
+  let r = S(s, t);
   if (r)
     console.log("School already exists");
   else {
     const o = new I();
     o.append("type", "CSV"), o.append("structureName", s);
-    let n, a, i;
-    "teachers" in e ? (n = e.teachers, a = e.students, i = e.responsables) : n = e, o.append("Teacher", c.file(n, "enseignants.csv")), a && o.append("Student", c.file(a, "eleves.csv")), i && o.append("Relative", c.file(i, "responsables.csv"));
+    let a, n, i;
+    "teachers" in e ? (a = e.teachers, n = e.students, i = e.responsables) : a = e, o.append("Teacher", c.file(a, "enseignants.csv")), n && o.append("Student", c.file(n, "eleves.csv")), i && o.append("Relative", c.file(i, "responsables.csv"));
     const p = u(t);
     p["Content-Type"] = "multipart/form-data; boundary=" + o.boundary;
-    const d = { headers: p }, $ = c.post(
+    const d = { headers: p }, k = c.post(
       `${h}/directory/wizard/import`,
       o.body(),
       d
     );
-    l($, {
-      "import structure is ok": (b) => b.status == 200
-    }), r = O(s, t);
+    l(k, {
+      "import structure is ok": (m) => m.status == 200
+    }), r = S(s, t);
   }
   return r;
 }
 const y = __ENV.ROOT_URL;
-function k(s, e) {
+function $(s, e) {
   let t = c.get(`${y}/appregistry/roles`, {
     headers: u(e)
   });
@@ -186,7 +187,7 @@ function k(s, e) {
 }
 function z(s, e) {
   const t = `${s} - All - Stress Test`;
-  let r = k(t, e);
+  let r = $(t, e);
   if (r)
     console.log(`Role ${t} already existed`);
   else {
@@ -195,17 +196,17 @@ function z(s, e) {
       { headers: u(e) }
     );
     l(o, { "get workflow actions": (d) => d.status == 200 });
-    const a = JSON.parse(o.body).filter(
+    const n = JSON.parse(o.body).filter(
       (d) => d.name === s
     )[0].actions.map((d) => d[0]), i = u(e);
     i["content-type"] = "application/json";
     const p = {
       role: t,
-      actions: a
+      actions: n
     };
     o = c.post(`${y}/appregistry/role`, JSON.stringify(p), {
       headers: i
-    }), console.log(o), l(o, { "save role ok": (d) => d.status == 201 }), r = k(t, e);
+    }), console.log(o), l(o, { "save role ok": (d) => d.status == 201 }), r = $(t, e);
   }
   return r;
 }
@@ -220,20 +221,20 @@ function U(s, e) {
 }
 export {
   R as BASE_URL,
-  S as Session,
-  m as SessionMode,
+  b as Session,
+  O as SessionMode,
   H as activateUsers,
   J as authenticateOAuth2,
   C as authenticateWeb,
   z as createAndSetRole,
   V as createStructure,
-  x as getConnectedUserId,
+  j as getConnectedUserId,
   u as getHeaders,
   K as getMetricValue,
-  k as getRoleByName,
+  $ as getRoleByName,
   U as getRolesOfStructure,
-  O as getSchoolByName,
+  S as getSchoolByName,
   B as getUsersOfSchool,
   L as linkRoleToUsers,
-  j as searchUser
+  E as searchUser
 };
