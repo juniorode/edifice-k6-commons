@@ -107,13 +107,16 @@ export const authenticateOAuth2 = function (
   );
 };
 
-export function getRandomUser(arrayOfUsers: {id: string}[], exceptUsers: {id: string}[]) {
-  const idToAvoid = (exceptUsers || []).map(u => u.id)
-  for(let i = 0; i < 1000; i++) {
-    const user = arrayOfUsers[Math.floor(Math.random() * arrayOfUsers.length)]
-    if(idToAvoid.indexOf(user.id) < 0) {
+export function getRandomUser(
+  arrayOfUsers: { id: string }[],
+  exceptUsers: { id: string }[],
+) {
+  const idToAvoid = (exceptUsers || []).map((u) => u.id);
+  for (let i = 0; i < 1000; i++) {
+    const user = arrayOfUsers[Math.floor(Math.random() * arrayOfUsers.length)];
+    if (idToAvoid.indexOf(user.id) < 0) {
       return user;
     }
   }
-  throw 'cannot.find.random.user'
+  throw "cannot.find.random.user";
 }

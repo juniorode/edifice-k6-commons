@@ -156,9 +156,9 @@ export function createStructure(
       fd.body(),
       params,
     );
-    check(res, {
-      "import structure is ok": (r) => r.status == 200,
-    });
+    if (res.status != 200) {
+      fail(`Could not create structure ${schoolName} : ${res}`);
+    }
     ecoleAudience = getSchoolByName(schoolName, session);
   }
   return ecoleAudience;
