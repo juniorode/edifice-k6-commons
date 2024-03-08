@@ -183,7 +183,7 @@ function W(t, e, o) {
       r.body(),
       l
     );
-    y.status != 200 && $(`Could not create structure ${t} : ${y}`), s = k(t, o);
+    y.status != 200 && (console.error(`Could not create structure ${t}`, y), $(`Could not create structure ${t}`)), s = k(t, o);
   }
   return s;
 }
@@ -274,22 +274,22 @@ function v(t, e) {
     "get structure roles should be ok": (s) => s.status == 200
   }), JSON.parse(o.body);
 }
-const x = __ENV.ROOT_URL;
+const C = __ENV.ROOT_URL;
 function X(t, e) {
   let o = u(e);
   const s = new b();
   s.append("file", a.file(t, "file.txt")), o["Content-Type"] = "multipart/form-data; boundary=" + s.boundary;
-  let r = a.post(`${x}/workspace/document`, s.body(), { headers: o });
+  let r = a.post(`${C}/workspace/document`, s.body(), { headers: o });
   return d(r, {
     "upload doc ok": (c) => c.status === 201
   }), JSON.parse(r.body);
 }
-const C = __ENV.ROOT_URL;
+const x = __ENV.ROOT_URL;
 function Y(t, e, o) {
   const s = u(o);
   s["content-type"] = "application/json";
   const r = JSON.stringify(e);
-  return a.put(`${C}/workspace/share/resource/${t}`, r, {
+  return a.put(`${x}/workspace/share/resource/${t}`, r, {
     headers: s
   });
 }
