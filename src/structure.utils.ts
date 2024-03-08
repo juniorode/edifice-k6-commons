@@ -157,12 +157,51 @@ export function createStructure(
       params,
     );
     if (res.status != 200) {
-      console.error(`Could not create structure ${schoolName}`, res);
       fail(`Could not create structure ${schoolName}`);
     }
     ecoleAudience = getSchoolByName(schoolName, session);
   }
   return ecoleAudience;
+}
+
+export function importUsers(
+  structure: Structure,
+  users: bytes | StructureInitData,
+  session: Session,
+) {
+  const fd = new FormData();
+  fd.append("type", "CSV");
+  fd.append("structureName", structure.name);
+  fd.append("structureId", structure.id);
+  //@ts-ignore
+  let teachers: bytes;
+  let students: bytes | undefined;
+  let responsables: bytes | undefined;
+  if ("teachers" in users) {
+    teachers = (<StructureInitData>users).teachers;
+    students = (<StructureInitData>users).students;
+    responsables = (<StructureInitData>users).responsables;
+  } else {
+    teachers = <bytes>users;
+  }
+  fd.append("Teacher", http.file(teachers, "enseignants.csv"));
+  if (students) {
+    fd.append("Student", http.file(students, "eleves.csv"));
+  }
+  if (responsables) {
+    fd.append("Relative", http.file(responsables, "responsables.csv"));
+  }
+  const headers = getHeaders(session);
+  //@ts-ignore
+  headers["Content-Type"] = "multipart/form-data; boundary=" + fd.boundary;
+  const params = { headers };
+  //@ts-ignore
+  const res = http.post(
+    `${rootUrl}/directory/wizard/import`,
+    fd.body(),
+    params,
+  );
+  return res;
 }
 
 export function createBroadcastGroup(
