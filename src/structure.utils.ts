@@ -206,7 +206,7 @@ export function importUsers(
   return res;
 }
 
-export function createBroadcastGroup(
+export function getBroadcastGroup(
   broadcastListName: string,
   school: Structure,
   session: Session,
@@ -217,19 +217,29 @@ export function createBroadcastGroup(
     `${rootUrl}/directory/group/admin/list?translate=false&structureId=${school.id}`,
     { headers },
   );
-  let broadcastGroup = JSON.parse(<string>res.body).filter(
+  return JSON.parse(<string>res.body).filter(
     (e: any) => e.subType === "BroadcastGroup" && e.name === broadcastListName,
   )[0];
+}
+
+export function createBroadcastGroup(
+  broadcastListName: string,
+  school: Structure,
+  session: Session,
+): BroadcastGroup {
+  let broadcastGroup = getBroadcastGroup(broadcastListName, school, session);
   if (broadcastGroup) {
     console.log("Broadcast group already existed");
   } else {
     console.log("Creating broadcast group");
+    const headers = getHeaders(session);
+    headers["content-type"] = "application/json";
     let payload = JSON.stringify({
       name: broadcastListName,
       structureId: school.id,
       subType: "BroadcastGroup",
     });
-    res = http.post(`${rootUrl}/directory/group`, payload, { headers });
+    let res = http.post(`${rootUrl}/directory/group`, payload, { headers });
     check(res, {
       "create broadcast group": (r) => r.status === 201,
     });
@@ -244,7 +254,6 @@ export function createBroadcastGroup(
     check(res, {
       "set broadcast group for teachers": (r) => r.status === 200,
     });
-
     const teacherGroupId = getTeacherRole(school, session).id;
     res = http.post(
       `${rootUrl}/communication/v2/group/${teacherGroupId}/communique/${blId}`,
@@ -255,9 +264,7 @@ export function createBroadcastGroup(
       "open comm rule for broadcast group for teachers": (r) =>
         r.status === 200,
     });
-
-    res = http.get(`${rootUrl}/communication/group/${blId}`, { headers });
-    broadcastGroup = JSON.parse(<string>res.body);
+    broadcastGroup = getBroadcastGroup(broadcastListName, school, session);
   }
   return broadcastGroup;
 }
