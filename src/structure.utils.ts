@@ -157,7 +157,8 @@ export function createStructure(
       params,
     );
     if (res.status != 200) {
-      fail(`Could not create structure ${schoolName} : ${res}`);
+      console.error(`Could not create structure ${schoolName}`, res)
+      fail(`Could not create structure ${schoolName}`);
     }
     ecoleAudience = getSchoolByName(schoolName, session);
   }
