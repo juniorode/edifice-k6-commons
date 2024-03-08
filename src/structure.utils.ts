@@ -173,6 +173,7 @@ export function importUsers(
   fd.append("type", "CSV");
   fd.append("structureName", structure.name);
   fd.append("structureId", structure.id);
+  fd.append("structureExternalId", structure.externalId);
   //@ts-ignore
   let teachers: bytes;
   let students: bytes | undefined;
