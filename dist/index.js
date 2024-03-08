@@ -111,8 +111,9 @@ function k(t, e) {
   let o = a.get(`${p}/directory/structure/admin/list`, {
     headers: d(e)
   });
-  const s = JSON.parse(o.body);
-  return console.log(s), s.filter((r) => r.name === t)[0];
+  return JSON.parse(o.body).filter(
+    (s) => s.name === t
+  )[0];
 }
 function M(t, e) {
   let o = a.get(`${p}/directory/structure/${t.id}/users`, {
