@@ -37,9 +37,9 @@ export function getSchoolByName(name: string, session: Session): Structure {
   let ecoles = http.get(`${rootUrl}/directory/structure/admin/list`, {
     headers: getHeaders(session),
   });
-  return JSON.parse(<string>ecoles.body).filter(
-    (structure: Structure) => structure.name === name,
-  )[0];
+  const body = JSON.parse(<string>ecoles.body);
+  console.log(body);
+  return body.filter((structure: Structure) => structure.name === name)[0];
 }
 
 export function getUsersOfSchool(school: Structure, session: Session) {
