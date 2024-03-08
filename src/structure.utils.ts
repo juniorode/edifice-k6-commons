@@ -10,6 +10,9 @@ const rootUrl = __ENV.ROOT_URL;
 export type Structure = {
   id: string;
   name: string;
+  externalId: string;
+  feederName: string;
+  source: string;
 };
 
 export type StructureInitData = {
@@ -30,15 +33,12 @@ export type BroadcastGroup = {
   structures: Structure[];
 };
 
-export function getSchoolByName(name: string, session: Session) {
-  let ecoles = http.get(`${rootUrl}/directory/api/ecole`, {
+export function getSchoolByName(name: string, session: Session): Structure {
+  let ecoles = http.get(`${rootUrl}/directory/structure/admin/list`, {
     headers: getHeaders(session),
   });
   const result = JSON.parse(<string>ecoles.body).result;
-  let ecoleAudience = Object.keys(result || {})
-    .map((k) => result[k])
-    .filter((ecole) => ecole.name === name)[0];
-  return ecoleAudience;
+  return result.filter((structure: Structure) => structure.name === name)[0];
 }
 
 export function getUsersOfSchool(school: Structure, session: Session) {
