@@ -1,7 +1,7 @@
 import http from "k6/http";
 import { check } from "k6";
 import { getHeaders } from "./user.utils";
-import { Session } from "./authentication.utils";
+import { Session } from "./models";
 
 const rootUrl = __ENV.ROOT_URL;
 

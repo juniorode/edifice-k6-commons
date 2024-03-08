@@ -1,6 +1,6 @@
 import http from "k6/http";
 import { check } from "k6";
-import { Cookie, Session, SessionMode } from "./authentication.utils.js";
+import { Cookie, Session, SessionMode } from "./models";
 
 const THIRTY_MINUTES_IN_SECONDS = 30 * 60;
 
@@ -74,6 +74,12 @@ export const authenticateWeb = function (login: string, pwd: string) {
     THIRTY_MINUTES_IN_SECONDS,
     cookies,
   );
+};
+
+export const switchSession = function (session: Session): Session {
+  const jar = http.cookieJar();
+  jar.set(rootUrl, "oneSessionId", session.token);
+  return session;
 };
 
 export const authenticateOAuth2 = function (
