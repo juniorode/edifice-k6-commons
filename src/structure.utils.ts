@@ -13,6 +13,7 @@ export type Structure = {
   externalId: string;
   feederName: string;
   source: string;
+  parents: { name: string; id: string }[];
 };
 
 export type StructureInitData = {
@@ -193,19 +194,29 @@ export function attachStructureAsChild(
   parentStructure: Structure,
   childStructure: Structure,
   session: Session,
-) {
-  const headers = getHeaders(session);
-  headers["content-type"] = "application/json";
-  let res = http.put(
-    `${rootUrl}/directory/structure/${childStructure.id}/parent/${parentStructure.id}`,
-    "{}",
-  );
-  if (res.status !== 200) {
-    fail(
-      `Could not attach structure ${childStructure.name} as a child of ${parentStructure.name}`,
+): boolean {
+  let added: boolean;
+  const parentIds = (childStructure.parents || []).map((p) => p.id);
+  if (parentIds.indexOf(parentStructure.id) >= 0) {
+    console.log(
+      `${childStructure.name} is already a child of ${parentStructure.name}`,
     );
+    added = false;
+  } else {
+    const headers = getHeaders(session);
+    headers["content-type"] = "application/json";
+    let res = http.put(
+      `${rootUrl}/directory/structure/${childStructure.id}/parent/${parentStructure.id}`,
+      "{}",
+    );
+    if (res.status !== 200) {
+      fail(
+        `Could not attach structure ${childStructure.name} as a child of ${parentStructure.name}`,
+      );
+    }
+    added = true;
   }
-  return res;
+  return added;
 }
 
 export function importUsers(
