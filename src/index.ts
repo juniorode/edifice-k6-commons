@@ -6,3 +6,4 @@ export * from "./user.utils";
 export * from "./roles.utils";
 export * from "./ws.utils";
 export * from "./shares.utils";
+export * from "./communication.utils";
