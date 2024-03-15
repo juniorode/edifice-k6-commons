@@ -1,6 +1,6 @@
 import http from "k6/http";
 import { check } from "k6";
-import { Cookie, Session, SessionMode } from "./authentication.utils.js";
+import { Cookie, Session, SessionMode } from "./models";
 
 const THIRTY_MINUTES_IN_SECONDS = 30 * 60;
 

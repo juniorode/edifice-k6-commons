@@ -1,14 +1,9 @@
 import http, { RefinedResponse } from "k6/http";
 import { getHeaders } from "./user.utils";
 import { Session } from ".";
+import { Shares } from "./models";
 
 const rootUrl = __ENV.ROOT_URL;
-
-export type Shares = {
-  bookmarks: object;
-  groups: object;
-  users: object;
-};
 
 export function shareFile(
   fileId: string,

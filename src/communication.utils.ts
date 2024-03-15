@@ -1,5 +1,5 @@
 import http from "k6/http";
-import { Session } from "./authentication.utils";
+import { Session } from "./models";
 import { fail } from "k6";
 import { getHeaders } from "./user.utils";
 

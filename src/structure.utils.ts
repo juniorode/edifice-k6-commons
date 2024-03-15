@@ -4,35 +4,9 @@ import { Role, Session, getRolesOfStructure } from ".";
 import { check, bytes, fail } from "k6";
 //@ts-ignore
 import { FormData } from "https://jslib.k6.io/formdata/0.0.2/index.js";
+import { Structure, StructureInitData } from "./models";
 
 const rootUrl = __ENV.ROOT_URL;
-
-export type Structure = {
-  id: string;
-  name: string;
-  externalId: string;
-  feederName: string;
-  source: string;
-  parents: { name: string; id: string }[];
-};
-
-export type StructureInitData = {
-  teachers: bytes;
-  students: bytes;
-  responsables: bytes;
-};
-
-export type BroadcastGroup = {
-  id: string;
-  name: string;
-  displayName: string;
-  labels: string[];
-  autolinkTargetAllStructs: boolean;
-  autolinkTargetStructs: string[];
-  autolinkUsersFromGroups: string[];
-  type: string;
-  structures: Structure[];
-};
 
 export function getSchoolByName(name: string, session: Session): Structure {
   let ecoles = http.get(`${rootUrl}/directory/structure/admin/list`, {
@@ -258,76 +232,4 @@ export function importUsers(
     params,
   );
   return res;
-}
-
-export function getBroadcastGroup(
-  broadcastListName: string,
-  school: Structure,
-  session: Session,
-): BroadcastGroup {
-  const headers = getHeaders(session);
-  headers["content-type"] = "application/json";
-  let res = http.get(
-    `${rootUrl}/directory/group/admin/list?translate=false&structureId=${school.id}`,
-    { headers },
-  );
-  return JSON.parse(<string>res.body).filter(
-    (e: any) => e.subType === "BroadcastGroup" && e.name === broadcastListName,
-  )[0];
-}
-
-export function createBroadcastGroup(
-  broadcastListName: string,
-  school: Structure,
-  session: Session,
-): BroadcastGroup {
-  let broadcastGroup = getBroadcastGroup(broadcastListName, school, session);
-  if (broadcastGroup) {
-    console.log("Broadcast group already existed");
-  } else {
-    console.log("Creating broadcast group");
-    const headers = getHeaders(session);
-    headers["content-type"] = "application/json";
-    let payload = JSON.stringify({
-      name: broadcastListName,
-      structureId: school.id,
-      subType: "BroadcastGroup",
-    });
-    let res = http.post(`${rootUrl}/directory/group`, payload, { headers });
-    check(res, {
-      "create broadcast group": (r) => r.status === 201,
-    });
-    const blId = JSON.parse(<string>res.body).id;
-    payload = JSON.stringify({
-      name: broadcastListName,
-      autolinkTargetAllStructs: true,
-      autolinkTargetStructs: [],
-      autolinkUsersFromGroups: ["Teacher"],
-    });
-    res = http.put(`${rootUrl}/directory/group/${blId}`, payload, { headers });
-    check(res, {
-      "set broadcast group for teachers": (r) => r.status === 200,
-    });
-    const teacherGroupId = getTeacherRole(school, session).id;
-    res = http.post(
-      `${rootUrl}/communication/v2/group/${teacherGroupId}/communique/${blId}`,
-      "{}",
-      { headers },
-    );
-    check(res, {
-      "open comm rule for broadcast group for teachers": (r) =>
-        r.status === 200,
-    });
-    broadcastGroup = getBroadcastGroup(broadcastListName, school, session);
-  }
-  return broadcastGroup;
-}
-
-export function getTeacherRole(structure: Structure, session: Session) {
-  const roles = getRolesOfStructure(structure.id, session);
-  return roles.filter(
-    (role) =>
-      role.name === `Teachers from group ${structure.name}.` ||
-      role.name === `Enseignants du groupe ${structure.name}.`,
-  )[0];
 }
