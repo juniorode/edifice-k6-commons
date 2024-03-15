@@ -116,6 +116,30 @@ export function linkRoleToUsers(
     }
   }
 }
+export function createEmptyStructure(
+  structureName: string,
+  hasApp: boolean,
+  session: Session,
+): Structure {
+  let structure = getSchoolByName(structureName, session);
+  if (structure) {
+    console.log(`Structure ${structureName} already exists`);
+  } else {
+    const headers = getHeaders(session);
+    headers["content-type"] = "application/json";
+    const payload = JSON.stringify({
+      hasApp,
+      name: structureName,
+    });
+    let res = http.post(`${rootUrl}/directory/school`, payload, headers);
+    if (res.status !== 201) {
+      console.error(res.body);
+      fail(`Could not create structure ${structureName}`);
+    }
+    structure = getSchoolByName(structureName, session);
+  }
+  return structure;
+}
 
 export function createStructure(
   schoolName: string,
@@ -163,6 +187,25 @@ export function createStructure(
     ecoleAudience = getSchoolByName(schoolName, session);
   }
   return ecoleAudience;
+}
+
+export function attachStructureAsChild(
+  parentStructure: Structure,
+  childStructure: Structure,
+  session: Session,
+) {
+  const headers = getHeaders(session);
+  headers["content-type"] = "application/json";
+  let res = http.put(
+    `${rootUrl}/directory/structure/${childStructure.id}/parent/${parentStructure.id}`,
+    "{}",
+  );
+  if (res.status !== 200) {
+    fail(
+      `Could not attach structure ${childStructure.name} as a child of ${parentStructure.name}`,
+    );
+  }
+  return res;
 }
 
 export function importUsers(
