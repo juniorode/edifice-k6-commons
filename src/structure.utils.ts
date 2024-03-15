@@ -269,7 +269,7 @@ export function createBroadcastGroup(
   return broadcastGroup;
 }
 
-function getTeacherRole(structure: Structure, session: Session) {
+export function getTeacherRole(structure: Structure, session: Session) {
   const roles = getRolesOfStructure(structure.id, session);
   return roles.filter(
     (role) =>
