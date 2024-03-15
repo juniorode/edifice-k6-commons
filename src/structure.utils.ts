@@ -233,3 +233,9 @@ export function importUsers(
   );
   return res;
 }
+
+export function triggerImport(session: Session) {
+  const headers = getHeaders(session);
+  headers["content-type"] = "application/json";
+  return http.post(`${rootUrl}/directory/import`, "{}", { headers });
+}
