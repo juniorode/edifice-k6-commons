@@ -41,7 +41,7 @@ const I = __ENV.BASE_URL, E = 30 * 60, k = __ENV.ROOT_URL, l = function(o) {
     "should get an OK response": (r) => r.status == 200,
     "should get a valid userId": (r) => !!r.json("userId")
   }), e.json("userId");
-}, P = function(o, e) {
+}, L = function(o, e) {
   let r = {
     email: o,
     password: e,
@@ -62,7 +62,7 @@ const I = __ENV.BASE_URL, E = 30 * 60, k = __ENV.ROOT_URL, l = function(o) {
     E,
     n
   );
-}, L = function(o) {
+}, P = function(o) {
   return c.cookieJar().set(k, "oneSessionId", o.token), o;
 }, M = function(o, e, r, t) {
   let s = {
@@ -409,9 +409,10 @@ function de(o, e) {
   return O("parents", o, e);
 }
 function O(o, e, r) {
-  return R(e.id, r).filter(
-    (s) => s.name === `${e.name} group ${o}.`
-  )[0];
+  return R(e.id, r).filter((s) => {
+    const n = s.name.toLowerCase();
+    return n === `${e.name} group ${o}.` || n === `${o} from group ${e.name}.`;
+  })[0];
 }
 function v(o, e, r) {
   const t = l(r);
@@ -436,7 +437,7 @@ export {
   ie as addCommunicationBetweenGroups,
   oe as attachStructureAsChild,
   M as authenticateOAuth2,
-  P as authenticateWeb,
+  L as authenticateWeb,
   se as createAndSetRole,
   pe as createBroadcastGroup,
   Z as createEmptyStructure,
@@ -458,7 +459,7 @@ export {
   Q as linkRoleToUsers,
   K as searchUser,
   le as shareFile,
-  L as switchSession,
+  P as switchSession,
   te as triggerImport,
   ae as uploadFile
 };

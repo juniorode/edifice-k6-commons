@@ -82,9 +82,13 @@ export function getProfileGroupOfStructure(
   session: Session,
 ) {
   const roles = getRolesOfStructure(structure.id, session);
-  return roles.filter(
-    (role) => role.name === `${structure.name} group ${profileGroupName}.`,
-  )[0];
+  return roles.filter((role) => {
+    const lowerName = role.name.toLowerCase();
+    return (
+      lowerName === `${structure.name} group ${profileGroupName}.` ||
+      lowerName === `${profileGroupName} from group ${structure.name}.`
+    );
+  })[0];
 }
 
 export function getBroadcastGroup(
