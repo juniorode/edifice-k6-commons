@@ -63,7 +63,7 @@ export function getRolesOfStructure(
   session: Session,
 ): RoleOfStructure[] {
   let res = http.get(
-    `${rootUrl}/appregistry/groups/roles?structureId=${structureId}`,
+    `${rootUrl}/appregistry/groups/roles?structureId=${structureId}&translate=false`,
     { headers: getHeaders(session) },
   );
   check(res, {

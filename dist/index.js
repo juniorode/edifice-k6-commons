@@ -1,81 +1,81 @@
-var _ = Object.defineProperty;
-var T = (e, o, r) => o in e ? _(e, o, { enumerable: !0, configurable: !0, writable: !0, value: r }) : e[o] = r;
-var m = (e, o, r) => (T(e, typeof o != "symbol" ? o + "" : o, r), r);
+var T = Object.defineProperty;
+var U = (o, e, r) => e in o ? T(o, e, { enumerable: !0, configurable: !0, writable: !0, value: r }) : o[e] = r;
+var m = (o, e, r) => (U(o, typeof e != "symbol" ? e + "" : e, r), r);
 import c from "k6/http";
-import { check as d, fail as k } from "k6";
+import { check as u, fail as f } from "k6";
 import { FormData as C } from "https://jslib.k6.io/formdata/0.0.2/index.js";
 const h = {
   COOKIE: 0,
   OAUTH2: 1
 };
 class b {
-  constructor(o, r, t, s) {
+  constructor(e, r, t, s) {
     m(this, "expiresAt");
     m(this, "token");
     m(this, "mode");
     m(this, "cookies");
-    this.token = o, this.mode = r, this.cookies = s, this.expiresAt = Date.now() + t * 1e3 - 3e3;
+    this.token = e, this.mode = r, this.cookies = s, this.expiresAt = Date.now() + t * 1e3 - 3e3;
   }
   isExpired() {
     return this.expiresAt <= Date.now();
   }
-  getCookie(o) {
-    return this.cookies ? this.cookies.filter((r) => r.name === o).map((r) => r.value)[0] : null;
+  getCookie(e) {
+    return this.cookies ? this.cookies.filter((r) => r.name === e).map((r) => r.value)[0] : null;
   }
 }
-const U = __ENV.BASE_URL, I = 30 * 60, f = __ENV.ROOT_URL, l = function(e) {
-  let o;
-  return e ? e.mode === h.COOKIE ? o = { "x-xsrf-token": e.getCookie("XSRF-TOKEN") || "" } : e.mode === h.OAUTH2 ? o = { Authorization: `Bearer ${e.token}` } : o = {} : o = {}, o;
-}, V = function(e, o) {
-  const r = c.get(`${f}/conversation/visible?search=${e}`, {
-    headers: l(o)
-  });
-  return d(r, {
-    "should get an OK response": (s) => s.status == 200
-  }), r.json("users")[0].id;
-}, K = function(e) {
-  const o = c.get(`${f}/auth/oauth2/userinfo`, {
+const I = __ENV.BASE_URL, E = 30 * 60, k = __ENV.ROOT_URL, l = function(o) {
+  let e;
+  return o ? o.mode === h.COOKIE ? e = { "x-xsrf-token": o.getCookie("XSRF-TOKEN") || "" } : o.mode === h.OAUTH2 ? e = { Authorization: `Bearer ${o.token}` } : e = {} : e = {}, e;
+}, K = function(o, e) {
+  const r = c.get(`${k}/conversation/visible?search=${o}`, {
     headers: l(e)
   });
-  return d(o, {
+  return u(r, {
+    "should get an OK response": (s) => s.status == 200
+  }), r.json("users")[0].id;
+}, H = function(o) {
+  const e = c.get(`${k}/auth/oauth2/userinfo`, {
+    headers: l(o)
+  });
+  return u(e, {
     "should get an OK response": (r) => r.status == 200,
     "should get a valid userId": (r) => !!r.json("userId")
-  }), o.json("userId");
-}, H = function(e, o) {
+  }), e.json("userId");
+}, P = function(o, e) {
   let r = {
-    email: e,
-    password: o,
+    email: o,
+    password: e,
     callBack: "",
     detail: ""
   };
-  const t = c.post(`${f}/auth/login`, r, {
+  const t = c.post(`${k}/auth/login`, r, {
     redirects: 0
   });
-  d(t, {
+  u(t, {
     "should redirect connected user to login page": (a) => a.status === 302,
     "should have set an auth cookie": (a) => a.cookies.oneSessionId !== null && a.cookies.oneSessionId !== void 0
-  }), c.cookieJar().set(f, "oneSessionId", t.cookies.oneSessionId[0].value);
+  }), c.cookieJar().set(k, "oneSessionId", t.cookies.oneSessionId[0].value);
   const n = Object.keys(t.cookies).map((a) => ({ name: a, value: t.cookies[a][0].value }));
   return new b(
     t.cookies.oneSessionId[0].value,
     h.COOKIE,
-    I,
+    E,
     n
   );
-}, L = function(e) {
-  return c.cookieJar().set(f, "oneSessionId", e.token), e;
-}, M = function(e, o, r, t) {
+}, L = function(o) {
+  return c.cookieJar().set(k, "oneSessionId", o.token), o;
+}, M = function(o, e, r, t) {
   let s = {
     grant_type: "password",
-    username: e,
-    password: o,
+    username: o,
+    password: e,
     client_id: r,
     client_secret: t,
     scope: "timeline userbook blog lvs actualites pronote schoolbook support viescolaire zimbra conversation directory homeworks userinfo workspace portal cas sso presences incidents competences diary edt infra auth"
-  }, n = c.post(`${f}/auth/oauth2/token`, s, {
+  }, n = c.post(`${k}/auth/oauth2/token`, s, {
     redirects: 0
   });
-  d(n, {
+  u(n, {
     "should get an OK response for authentication": (i) => i.status == 200,
     "should have set an access token": (i) => !!i.json("access_token")
   });
@@ -86,203 +86,203 @@ const U = __ENV.BASE_URL, I = 30 * 60, f = __ENV.ROOT_URL, l = function(e) {
     n.json("expires_in")
   );
 };
-function P(e, o) {
-  const r = (o || []).map((t) => t.id);
+function z(o, e) {
+  const r = (e || []).map((t) => t.id);
   for (let t = 0; t < 1e3; t++) {
-    const s = e[Math.floor(Math.random() * e.length)];
+    const s = o[Math.floor(Math.random() * o.length)];
     if (r.indexOf(s.id) < 0)
       return s;
   }
   throw "cannot.find.random.user";
 }
-const z = function(e, o) {
-  const r = c.get(`${U}/metrics`, {
-    headers: l(o)
+const q = function(o, e) {
+  const r = c.get(`${I}/metrics`, {
+    headers: l(e)
   });
-  d(r, {
+  u(r, {
     "should get an OK response": (s) => s.status == 200
   });
   const t = r.body.split(`
 `);
   for (let s of t)
-    if (s.indexOf(`${e} `) === 0)
-      return parseFloat(s.substring(e.length + 1).trim());
-  return console.error("Metric", e, "not found"), null;
+    if (s.indexOf(`${o} `) === 0)
+      return parseFloat(s.substring(o.length + 1).trim());
+  return console.error("Metric", o, "not found"), null;
 }, g = __ENV.ROOT_URL;
-function y(e, o) {
+function y(o, e) {
   let r = c.get(`${g}/directory/structure/admin/list`, {
-    headers: l(o)
+    headers: l(e)
   });
   return JSON.parse(r.body).filter(
-    (t) => t.name === e
+    (t) => t.name === o
   )[0];
 }
-function q(e, o) {
-  let r = c.get(`${g}/directory/structure/${e.id}/users`, {
-    headers: l(o)
+function X(o, e) {
+  let r = c.get(`${g}/directory/structure/${o.id}/users`, {
+    headers: l(e)
   });
   if (r.status !== 200)
-    throw `Impossible to get users of ${e.id}`;
+    throw `Impossible to get users of ${o.id}`;
   return JSON.parse(r.body);
 }
-function X(e, o) {
-  let r = c.get(`${g}/directory/structure/${e.id}/users`, {
-    headers: l(o)
+function Y(o, e) {
+  let r = c.get(`${g}/directory/structure/${o.id}/users`, {
+    headers: l(e)
   });
-  r.status != 200 && k(`Cannot fetch users of structure ${e.id} : ${r}`);
+  r.status != 200 && f(`Cannot fetch users of structure ${o.id} : ${r}`);
   const t = JSON.parse(r.body);
   for (let s = 0; s < t.length; s++) {
     const n = t[s];
-    E(n);
+    D(n);
   }
 }
-function E(e) {
-  if (e.code) {
-    const o = {};
-    o.login = e.login, o.activationCode = e.code, o.password = "password", o.confirmPassword = "password", o.acceptCGU = "true";
-    const r = c.post(`${g}/auth/activation`, o, {
+function D(o) {
+  if (o.code) {
+    const e = {};
+    e.login = o.login, e.activationCode = o.code, e.password = "password", e.confirmPassword = "password", e.acceptCGU = "true";
+    const r = c.post(`${g}/auth/activation`, e, {
       redirects: 0,
       headers: { Host: "localhost" }
     });
-    r.status !== 302 && k(`Could not activate user ${e.login} : ${r}`);
+    r.status !== 302 && f(`Could not activate user ${o.login} : ${r}`);
   }
 }
-function Y(e, o, r, t) {
-  const n = O(e.id, t).filter(
+function Q(o, e, r, t) {
+  const n = R(o.id, t).filter(
     (a) => r.indexOf(a.name) >= 0
   );
   for (let a of n)
-    if (a.roles.indexOf(o.name) >= 0)
+    if (a.roles.indexOf(e.name) >= 0)
       console.log("Role already attributed to teachers");
     else {
       const i = l(t);
       i["content-type"] = "application/json";
-      const u = { headers: i }, p = JSON.stringify({
+      const d = { headers: i }, p = JSON.stringify({
         groupId: a.id,
-        roleIds: (a.roles || []).concat([o.id])
+        roleIds: (a.roles || []).concat([e.id])
       }), S = c.post(
-        `${g}/appregistry/authorize/group?schoolId=${e.id}`,
+        `${g}/appregistry/authorize/group?schoolId=${o.id}`,
         p,
-        u
+        d
       );
-      d(S, {
-        "link role to structure": (R) => R.status == 200
+      u(S, {
+        "link role to structure": (_) => _.status == 200
       });
     }
 }
-function Q(e, o, r) {
-  let t = y(e, r);
+function Z(o, e, r) {
+  let t = y(o, r);
   if (t)
-    console.log(`Structure ${e} already exists`);
+    console.log(`Structure ${o} already exists`);
   else {
     const s = l(r);
     s["content-type"] = "application/json";
     const n = JSON.stringify({
-      hasApp: o,
-      name: e
+      hasApp: e,
+      name: o
     });
     let a = c.post(`${g}/directory/school`, n, s);
-    a.status !== 201 && (console.error(a.body), k(`Could not create structure ${e}`)), t = y(e, r);
+    a.status !== 201 && (console.error(a.body), f(`Could not create structure ${o}`)), t = y(o, r);
   }
   return t;
 }
-function Z(e, o, r) {
-  let t = y(e, r);
+function ee(o, e, r) {
+  let t = y(o, r);
   if (t)
     console.log("School already exists");
   else {
     const s = new C();
-    s.append("type", "CSV"), s.append("structureName", e);
+    s.append("type", "CSV"), s.append("structureName", o);
     let n, a, i;
-    "teachers" in o ? (n = o.teachers, a = o.students, i = o.responsables) : n = o, s.append("Teacher", c.file(n, "enseignants.csv")), a && s.append("Student", c.file(a, "eleves.csv")), i && s.append("Relative", c.file(i, "responsables.csv"));
-    const u = l(r);
-    u["Content-Type"] = "multipart/form-data; boundary=" + s.boundary;
-    const p = { headers: u };
+    "teachers" in e ? (n = e.teachers, a = e.students, i = e.responsables) : n = e, s.append("Teacher", c.file(n, "enseignants.csv")), a && s.append("Student", c.file(a, "eleves.csv")), i && s.append("Relative", c.file(i, "responsables.csv"));
+    const d = l(r);
+    d["Content-Type"] = "multipart/form-data; boundary=" + s.boundary;
+    const p = { headers: d };
     c.post(
       `${g}/directory/wizard/import`,
       s.body(),
       p
-    ).status != 200 && k(`Could not create structure ${e}`), t = y(e, r);
+    ).status != 200 && f(`Could not create structure ${o}`), t = y(o, r);
   }
   return t;
 }
-function ee(e, o, r) {
+function oe(o, e, r) {
   let t;
-  if ((o.parents || []).map((n) => n.id).indexOf(e.id) >= 0)
+  if ((e.parents || []).map((n) => n.id).indexOf(o.id) >= 0)
     console.log(
-      `${o.name} is already a child of ${e.name}`
+      `${e.name} is already a child of ${o.name}`
     ), t = !1;
   else {
     const n = l(r);
     n["content-type"] = "application/json", c.put(
-      `${g}/directory/structure/${o.id}/parent/${e.id}`,
+      `${g}/directory/structure/${e.id}/parent/${o.id}`,
       "{}"
-    ).status !== 200 && k(
-      `Could not attach structure ${o.name} as a child of ${e.name}`
+    ).status !== 200 && f(
+      `Could not attach structure ${e.name} as a child of ${o.name}`
     ), t = !0;
   }
   return t;
 }
-function oe(e, o, r) {
+function re(o, e, r) {
   const t = new C();
-  t.append("type", "CSV"), t.append("structureName", e.name), t.append("structureId", e.id), t.append("structureExternalId", e.externalId);
+  t.append("type", "CSV"), t.append("structureName", o.name), t.append("structureId", o.id), t.append("structureExternalId", o.externalId);
   let s, n, a;
-  "teachers" in o ? (s = o.teachers, n = o.students, a = o.responsables) : s = o, t.append("Teacher", c.file(s, "enseignants.csv")), n && t.append("Student", c.file(n, "eleves.csv")), a && t.append("Relative", c.file(a, "responsables.csv"));
+  "teachers" in e ? (s = e.teachers, n = e.students, a = e.responsables) : s = e, t.append("Teacher", c.file(s, "enseignants.csv")), n && t.append("Student", c.file(n, "eleves.csv")), a && t.append("Relative", c.file(a, "responsables.csv"));
   const i = l(r);
   i["Content-Type"] = "multipart/form-data; boundary=" + t.boundary;
-  const u = { headers: i };
+  const d = { headers: i };
   return c.post(
     `${g}/directory/wizard/import`,
     t.body(),
-    u
+    d
   );
 }
-function re(e) {
-  const o = l(e);
-  return o["content-type"] = "application/json", c.post(`${g}/directory/import`, "{}", { headers: o });
+function te(o) {
+  const e = l(o);
+  return e["content-type"] = "application/json", c.post(`${g}/directory/import`, "{}", { headers: e });
 }
 const w = __ENV.ROOT_URL;
-function v(e, o) {
+function W(o, e) {
   let r = c.get(`${w}/appregistry/roles`, {
-    headers: l(o)
+    headers: l(e)
   });
-  return JSON.parse(r.body).filter((s) => s.name === e)[0];
+  return JSON.parse(r.body).filter((s) => s.name === o)[0];
 }
-function te(e, o) {
-  const r = `${e} - All - Stress Test`;
-  let t = v(r, o);
+function se(o, e) {
+  const r = `${o} - All - Stress Test`;
+  let t = W(r, e);
   if (t)
     console.log(`Role ${r} already existed`);
   else {
     let s = c.get(
       `${w}/appregistry/applications/actions?actionType=WORKFLOW`,
-      { headers: l(o) }
+      { headers: l(e) }
     );
-    d(s, { "get workflow actions": (p) => p.status == 200 });
+    u(s, { "get workflow actions": (p) => p.status == 200 });
     const a = JSON.parse(s.body).filter(
-      (p) => p.name === e
-    )[0].actions.map((p) => p[0]), i = l(o);
+      (p) => p.name === o
+    )[0].actions.map((p) => p[0]), i = l(e);
     i["content-type"] = "application/json";
-    const u = {
+    const d = {
       role: r,
       actions: a
     };
-    s = c.post(`${w}/appregistry/role`, JSON.stringify(u), {
+    s = c.post(`${w}/appregistry/role`, JSON.stringify(d), {
       headers: i
-    }), console.log(s), d(s, { "save role ok": (p) => p.status == 201 }), t = v(r, o);
+    }), console.log(s), u(s, { "save role ok": (p) => p.status == 201 }), t = W(r, e);
   }
   return t;
 }
-function O(e, o) {
+function R(o, e) {
   let r = c.get(
-    `${w}/appregistry/groups/roles?structureId=${e}`,
-    { headers: l(o) }
+    `${w}/appregistry/groups/roles?structureId=${o}&translate=false`,
+    { headers: l(e) }
   );
-  return d(r, {
+  return u(r, {
     "get structure roles should be ok": (t) => t.status == 200
   }), JSON.parse(r.body);
 }
-const D = __ENV.ROOT_URL, se = [
+const A = __ENV.ROOT_URL, ne = [
   "org-entcore-workspace-controllers-WorkspaceController|getDocument",
   "org-entcore-workspace-controllers-WorkspaceController|copyDocuments",
   "org-entcore-workspace-controllers-WorkspaceController|getDocumentProperties",
@@ -314,7 +314,7 @@ const D = __ENV.ROOT_URL, se = [
   "org-entcore-workspace-controllers-WorkspaceController|renameDocument",
   "org-entcore-workspace-controllers-WorkspaceController|moveDocuments",
   "org-entcore-workspace-controllers-WorkspaceController|updateDocument"
-], ne = [
+], ce = [
   "org-entcore-workspace-controllers-WorkspaceController|getDocument",
   "org-entcore-workspace-controllers-WorkspaceController|copyDocuments",
   "org-entcore-workspace-controllers-WorkspaceController|getDocumentProperties",
@@ -327,38 +327,38 @@ const D = __ENV.ROOT_URL, se = [
   "org-entcore-workspace-controllers-WorkspaceController|commentFolder",
   "org-entcore-workspace-controllers-WorkspaceController|commentDocument"
 ];
-function ce(e, o) {
-  let r = l(o);
+function ae(o, e) {
+  let r = l(e);
   const t = new C();
-  t.append("file", c.file(e, "file.txt")), r["Content-Type"] = "multipart/form-data; boundary=" + t.boundary;
-  let s = c.post(`${D}/workspace/document`, t.body(), { headers: r });
-  return d(s, {
+  t.append("file", c.file(o, "file.txt")), r["Content-Type"] = "multipart/form-data; boundary=" + t.boundary;
+  let s = c.post(`${A}/workspace/document`, t.body(), { headers: r });
+  return u(s, {
     "upload doc ok": (n) => n.status === 201
   }), JSON.parse(s.body);
 }
-const A = __ENV.ROOT_URL;
-function ae(e, o, r) {
+const j = __ENV.ROOT_URL;
+function le(o, e, r) {
   const t = l(r);
   t["content-type"] = "application/json";
-  const s = JSON.stringify(o);
-  return c.put(`${A}/workspace/share/resource/${e}`, s, {
+  const s = JSON.stringify(e);
+  return c.put(`${j}/workspace/share/resource/${o}`, s, {
     headers: t
   });
 }
-const j = __ENV.ROOT_URL;
-function le(e, o, r) {
+const x = __ENV.ROOT_URL;
+function ie(o, e, r) {
   const t = c.post(
-    `${j}/communication/v2/group/${e}/communique/${o}`,
+    `${x}/communication/v2/group/${o}/communique/${e}`,
     "{}",
     { headers: l(r) }
   );
   return t.status !== 200 && (console.error(
-    `Error while adding communication between ${e} -> ${o}`
-  ), console.error(t), k(`could not add communication between ${e} -> ${o}`)), t;
+    `Error while adding communication between ${o} -> ${e}`
+  ), console.error(t), f(`could not add communication between ${o} -> ${e}`)), t;
 }
 const $ = __ENV.ROOT_URL;
-function ie(e, o, r) {
-  let t = W(e, o, r);
+function pe(o, e, r) {
+  let t = v(o, e, r);
   if (t)
     console.log("Broadcast group already existed");
   else {
@@ -366,93 +366,99 @@ function ie(e, o, r) {
     const s = l(r);
     s["content-type"] = "application/json";
     let n = JSON.stringify({
-      name: e,
-      structureId: o.id,
+      name: o,
+      structureId: e.id,
       subType: "BroadcastGroup"
     }), a = c.post(`${$}/directory/group`, n, { headers: s });
-    d(a, {
+    u(a, {
       "create broadcast group": (p) => p.status === 201
     });
     const i = JSON.parse(a.body).id;
     n = JSON.stringify({
-      name: e,
+      name: o,
       autolinkTargetAllStructs: !0,
       autolinkTargetStructs: [],
       autolinkUsersFromGroups: ["Teacher"]
-    }), a = c.put(`${$}/directory/group/${i}`, n, { headers: s }), d(a, {
+    }), a = c.put(`${$}/directory/group/${i}`, n, { headers: s }), u(a, {
       "set broadcast group for teachers": (p) => p.status === 200
     });
-    const u = J(o, r).id;
-    x(i, [u], r), t = W(e, o, r);
+    const d = N(e, r).id;
+    J(i, [d], r), t = v(o, e, r);
   }
   return t;
 }
-function x(e, o, r) {
+function J(o, e, r) {
   const t = l(r);
   t["content-type"] = "application/json";
-  for (let s of o) {
+  for (let s of e) {
     let n = c.post(
-      `${$}/communication/v2/group/${s}/communique/${e}`,
+      `${$}/communication/v2/group/${s}/communique/${o}`,
       "{}",
       { headers: t }
     );
-    n.status !== 200 && (console.error(n), k(`Cannot open comm rule from ${s} to ${e}`));
+    n.status !== 200 && (console.error(n), f(`Cannot open comm rule from ${s} to ${o}`));
   }
 }
-function J(e, o) {
-  return O(e.id, o).filter(
-    (t) => t.name === `Teachers from group ${e.name}.` || t.name === `Enseignants du groupe ${e.name}.`
+function N(o, e) {
+  return O("teachers", o, e);
+}
+function ue(o, e) {
+  return O("students", o, e);
+}
+function de(o, e) {
+  return O("parents", o, e);
+}
+function O(o, e, r) {
+  return R(e.id, r).filter(
+    (s) => s.name === `${e.name} group ${o}.`
   )[0];
 }
-function pe(e, o) {
-  return O(e.id, o).filter(
-    (t) => t.name === `Students from group ${e.name}.` || t.name === `Élèves du groupe ${e.name}.`
-  )[0];
-}
-function W(e, o, r) {
+function v(o, e, r) {
   const t = l(r);
   t["content-type"] = "application/json";
   let s = c.get(
-    `${$}/directory/group/admin/list?translate=false&structureId=${o.id}`,
+    `${$}/directory/group/admin/list?translate=false&structureId=${e.id}`,
     { headers: t }
   );
   return JSON.parse(s.body).filter(
-    (n) => n.subType === "BroadcastGroup" && n.name === e
+    (n) => n.subType === "BroadcastGroup" && n.name === o
   )[0];
 }
 export {
-  U as BASE_URL,
+  I as BASE_URL,
   b as Session,
   h as SessionMode,
-  se as WS_MANAGER_SHARE,
-  ne as WS_READER_SHARE,
-  E as activateUser,
-  X as activateUsers,
-  x as addCommRuleToGroup,
-  le as addCommunicationBetweenGroups,
-  ee as attachStructureAsChild,
+  ne as WS_MANAGER_SHARE,
+  ce as WS_READER_SHARE,
+  D as activateUser,
+  Y as activateUsers,
+  J as addCommRuleToGroup,
+  ie as addCommunicationBetweenGroups,
+  oe as attachStructureAsChild,
   M as authenticateOAuth2,
-  H as authenticateWeb,
-  te as createAndSetRole,
-  ie as createBroadcastGroup,
-  Q as createEmptyStructure,
-  Z as createStructure,
-  W as getBroadcastGroup,
-  K as getConnectedUserId,
+  P as authenticateWeb,
+  se as createAndSetRole,
+  pe as createBroadcastGroup,
+  Z as createEmptyStructure,
+  ee as createStructure,
+  v as getBroadcastGroup,
+  H as getConnectedUserId,
   l as getHeaders,
-  z as getMetricValue,
-  P as getRandomUser,
-  v as getRoleByName,
-  O as getRolesOfStructure,
+  q as getMetricValue,
+  de as getParentRole,
+  O as getProfileGroupOfStructure,
+  z as getRandomUser,
+  W as getRoleByName,
+  R as getRolesOfStructure,
   y as getSchoolByName,
-  pe as getStudentRole,
-  J as getTeacherRole,
-  q as getUsersOfSchool,
-  oe as importUsers,
-  Y as linkRoleToUsers,
-  V as searchUser,
-  ae as shareFile,
+  ue as getStudentRole,
+  N as getTeacherRole,
+  X as getUsersOfSchool,
+  re as importUsers,
+  Q as linkRoleToUsers,
+  K as searchUser,
+  le as shareFile,
   L as switchSession,
-  re as triggerImport,
-  ce as uploadFile
+  te as triggerImport,
+  ae as uploadFile
 };

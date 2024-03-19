@@ -65,20 +65,25 @@ export function addCommRuleToGroup(
 }
 
 export function getTeacherRole(structure: Structure, session: Session) {
-  const roles = getRolesOfStructure(structure.id, session);
-  return roles.filter(
-    (role) =>
-      role.name === `Teachers from group ${structure.name}.` ||
-      role.name === `Enseignants du groupe ${structure.name}.`,
-  )[0];
+  return getProfileGroupOfStructure("teachers", structure, session);
 }
 
 export function getStudentRole(structure: Structure, session: Session) {
+  return getProfileGroupOfStructure("students", structure, session);
+}
+
+export function getParentRole(structure: Structure, session: Session) {
+  return getProfileGroupOfStructure("parents", structure, session);
+}
+
+export function getProfileGroupOfStructure(
+  profileGroupName: string,
+  structure: Structure,
+  session: Session,
+) {
   const roles = getRolesOfStructure(structure.id, session);
   return roles.filter(
-    (role) =>
-      role.name === `Students from group ${structure.name}.` ||
-      role.name === `Élèves du groupe ${structure.name}.`,
+    (role) => role.name === `${structure.name} group ${profileGroupName}.`,
   )[0];
 }
 
