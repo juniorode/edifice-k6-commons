@@ -73,7 +73,7 @@ export function getStudentRole(structure: Structure, session: Session) {
 }
 
 export function getParentRole(structure: Structure, session: Session) {
-  return getProfileGroupOfStructure("parents", structure, session);
+  return getProfileGroupOfStructure("relatives", structure, session);
 }
 
 export function getProfileGroupOfStructure(

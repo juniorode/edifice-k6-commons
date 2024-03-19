@@ -242,7 +242,7 @@ function te(o) {
   return e["content-type"] = "application/json", c.post(`${g}/directory/import`, "{}", { headers: e });
 }
 const w = __ENV.ROOT_URL;
-function W(o, e) {
+function v(o, e) {
   let r = c.get(`${w}/appregistry/roles`, {
     headers: l(e)
   });
@@ -250,7 +250,7 @@ function W(o, e) {
 }
 function se(o, e) {
   const r = `${o} - All - Stress Test`;
-  let t = W(r, e);
+  let t = v(r, e);
   if (t)
     console.log(`Role ${r} already existed`);
   else {
@@ -269,7 +269,7 @@ function se(o, e) {
     };
     s = c.post(`${w}/appregistry/role`, JSON.stringify(d), {
       headers: i
-    }), console.log(s), u(s, { "save role ok": (p) => p.status == 201 }), t = W(r, e);
+    }), console.log(s), u(s, { "save role ok": (p) => p.status == 201 }), t = v(r, e);
   }
   return t;
 }
@@ -360,7 +360,7 @@ function ie(o, e, r) {
 }
 const $ = __ENV.ROOT_URL;
 function pe(o, e, r) {
-  let t = v(o, e, r);
+  let t = W(o, e, r);
   if (t)
     console.log("Broadcast group already existed");
   else {
@@ -385,7 +385,7 @@ function pe(o, e, r) {
       "set broadcast group for teachers": (p) => p.status === 200
     });
     const d = N(e, r).id;
-    J(i, [d], r), t = v(o, e, r);
+    J(i, [d], r), t = W(o, e, r);
   }
   return t;
 }
@@ -408,7 +408,7 @@ function ue(o, e) {
   return O("students", o, e);
 }
 function de(o, e) {
-  return O("parents", o, e);
+  return O("relatives", o, e);
 }
 function O(o, e, r) {
   return R(e.id, r).filter((s) => {
@@ -416,7 +416,7 @@ function O(o, e, r) {
     return n === `${e.name} group ${o}.`.toLowerCase() || n === `${o} from group ${e.name}.`.toLowerCase();
   })[0];
 }
-function v(o, e, r) {
+function W(o, e, r) {
   const t = l(r);
   t["content-type"] = "application/json";
   let s = c.get(
@@ -444,14 +444,14 @@ export {
   pe as createBroadcastGroup,
   Z as createEmptyStructure,
   ee as createStructure,
-  v as getBroadcastGroup,
+  W as getBroadcastGroup,
   K as getConnectedUserId,
   l as getHeaders,
   q as getMetricValue,
   de as getParentRole,
   O as getProfileGroupOfStructure,
   z as getRandomUser,
-  W as getRoleByName,
+  v as getRoleByName,
   R as getRolesOfStructure,
   y as getSchoolByName,
   ue as getStudentRole,
