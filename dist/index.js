@@ -26,14 +26,14 @@ class b {
 const I = __ENV.BASE_URL, E = 30 * 60, k = __ENV.ROOT_URL, l = function(o) {
   let e;
   return o ? o.mode === h.COOKIE ? e = { "x-xsrf-token": o.getCookie("XSRF-TOKEN") || "" } : o.mode === h.OAUTH2 ? e = { Authorization: `Bearer ${o.token}` } : e = {} : e = {}, e;
-}, K = function(o, e) {
+}, V = function(o, e) {
   const r = c.get(`${k}/conversation/visible?search=${o}`, {
     headers: l(e)
   });
   return u(r, {
     "should get an OK response": (s) => s.status == 200
   }), r.json("users")[0].id;
-}, H = function(o) {
+}, K = function(o) {
   const e = c.get(`${k}/auth/oauth2/userinfo`, {
     headers: l(o)
   });
@@ -41,7 +41,7 @@ const I = __ENV.BASE_URL, E = 30 * 60, k = __ENV.ROOT_URL, l = function(o) {
     "should get an OK response": (r) => r.status == 200,
     "should get a valid userId": (r) => !!r.json("userId")
   }), e.json("userId");
-}, L = function(o, e) {
+}, H = function(o, e) {
   let r = {
     email: o,
     password: e,
@@ -274,13 +274,15 @@ function se(o, e) {
   return t;
 }
 function R(o, e) {
-  let r = c.get(
+  const r = l(e);
+  r["Accept-Language"] = "en";
+  let t = c.get(
     `${w}/appregistry/groups/roles?structureId=${o}&translate=false`,
-    { headers: l(e) }
+    { headers: r }
   );
-  return u(r, {
-    "get structure roles should be ok": (t) => t.status == 200
-  }), JSON.parse(r.body);
+  return u(t, {
+    "get structure roles should be ok": (s) => s.status == 200
+  }), JSON.parse(t.body);
 }
 const A = __ENV.ROOT_URL, ne = [
   "org-entcore-workspace-controllers-WorkspaceController|getDocument",
@@ -411,7 +413,7 @@ function de(o, e) {
 function O(o, e, r) {
   return R(e.id, r).filter((s) => {
     const n = s.name.toLowerCase();
-    return n === `${e.name} group ${o}.` || n === `${o} from group ${e.name}.`;
+    return n === `${e.name} group ${o}.`.toLowerCase() || n === `${o} from group ${e.name}.`.toLowerCase();
   })[0];
 }
 function v(o, e, r) {
@@ -437,13 +439,13 @@ export {
   ie as addCommunicationBetweenGroups,
   oe as attachStructureAsChild,
   M as authenticateOAuth2,
-  L as authenticateWeb,
+  H as authenticateWeb,
   se as createAndSetRole,
   pe as createBroadcastGroup,
   Z as createEmptyStructure,
   ee as createStructure,
   v as getBroadcastGroup,
-  H as getConnectedUserId,
+  K as getConnectedUserId,
   l as getHeaders,
   q as getMetricValue,
   de as getParentRole,
@@ -457,7 +459,7 @@ export {
   X as getUsersOfSchool,
   re as importUsers,
   Q as linkRoleToUsers,
-  K as searchUser,
+  V as searchUser,
   le as shareFile,
   P as switchSession,
   te as triggerImport,

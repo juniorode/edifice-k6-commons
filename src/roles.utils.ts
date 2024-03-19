@@ -62,9 +62,11 @@ export function getRolesOfStructure(
   structureId: string,
   session: Session,
 ): RoleOfStructure[] {
+  const headers = getHeaders(session);
+  headers["Accept-Language"] = "en";
   let res = http.get(
     `${rootUrl}/appregistry/groups/roles?structureId=${structureId}&translate=false`,
-    { headers: getHeaders(session) },
+    { headers },
   );
   check(res, {
     "get structure roles should be ok": (r) => r.status == 200,

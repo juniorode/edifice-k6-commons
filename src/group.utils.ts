@@ -85,8 +85,10 @@ export function getProfileGroupOfStructure(
   return roles.filter((role) => {
     const lowerName = role.name.toLowerCase();
     return (
-      lowerName === `${structure.name} group ${profileGroupName}.` ||
-      lowerName === `${profileGroupName} from group ${structure.name}.`
+      lowerName ===
+        `${structure.name} group ${profileGroupName}.`.toLowerCase() ||
+      lowerName ===
+        `${profileGroupName} from group ${structure.name}.`.toLowerCase()
     );
   })[0];
 }
