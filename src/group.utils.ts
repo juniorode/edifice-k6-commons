@@ -73,6 +73,15 @@ export function getTeacherRole(structure: Structure, session: Session) {
   )[0];
 }
 
+export function getStudentRole(structure: Structure, session: Session) {
+  const roles = getRolesOfStructure(structure.id, session);
+  return roles.filter(
+    (role) =>
+      role.name === `Students from group ${structure.name}.` ||
+      role.name === `Élèves du groupe ${structure.name}.`,
+  )[0];
+}
+
 export function getBroadcastGroup(
   broadcastListName: string,
   school: Structure,

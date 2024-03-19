@@ -8,7 +8,7 @@ const h = {
   COOKIE: 0,
   OAUTH2: 1
 };
-class S {
+class b {
   constructor(o, r, t, s) {
     m(this, "expiresAt");
     m(this, "token");
@@ -56,7 +56,7 @@ const U = __ENV.BASE_URL, I = 30 * 60, f = __ENV.ROOT_URL, l = function(e) {
     "should have set an auth cookie": (a) => a.cookies.oneSessionId !== null && a.cookies.oneSessionId !== void 0
   }), c.cookieJar().set(f, "oneSessionId", t.cookies.oneSessionId[0].value);
   const n = Object.keys(t.cookies).map((a) => ({ name: a, value: t.cookies[a][0].value }));
-  return new S(
+  return new b(
     t.cookies.oneSessionId[0].value,
     h.COOKIE,
     I,
@@ -80,7 +80,7 @@ const U = __ENV.BASE_URL, I = 30 * 60, f = __ENV.ROOT_URL, l = function(e) {
     "should have set an access token": (i) => !!i.json("access_token")
   });
   const a = n.json("access_token");
-  return new S(
+  return new b(
     a,
     h.OAUTH2,
     n.json("expires_in")
@@ -148,7 +148,7 @@ function E(e) {
   }
 }
 function Y(e, o, r, t) {
-  const n = b(e.id, t).filter(
+  const n = O(e.id, t).filter(
     (a) => r.indexOf(a.name) >= 0
   );
   for (let a of n)
@@ -160,12 +160,12 @@ function Y(e, o, r, t) {
       const u = { headers: i }, p = JSON.stringify({
         groupId: a.id,
         roleIds: (a.roles || []).concat([o.id])
-      }), O = c.post(
+      }), S = c.post(
         `${g}/appregistry/authorize/group?schoolId=${e.id}`,
         p,
         u
       );
-      d(O, {
+      d(S, {
         "link role to structure": (R) => R.status == 200
       });
     }
@@ -242,7 +242,7 @@ function re(e) {
   return o["content-type"] = "application/json", c.post(`${g}/directory/import`, "{}", { headers: o });
 }
 const w = __ENV.ROOT_URL;
-function W(e, o) {
+function v(e, o) {
   let r = c.get(`${w}/appregistry/roles`, {
     headers: l(o)
   });
@@ -250,7 +250,7 @@ function W(e, o) {
 }
 function te(e, o) {
   const r = `${e} - All - Stress Test`;
-  let t = W(r, o);
+  let t = v(r, o);
   if (t)
     console.log(`Role ${r} already existed`);
   else {
@@ -269,11 +269,11 @@ function te(e, o) {
     };
     s = c.post(`${w}/appregistry/role`, JSON.stringify(u), {
       headers: i
-    }), console.log(s), d(s, { "save role ok": (p) => p.status == 201 }), t = W(r, o);
+    }), console.log(s), d(s, { "save role ok": (p) => p.status == 201 }), t = v(r, o);
   }
   return t;
 }
-function b(e, o) {
+function O(e, o) {
   let r = c.get(
     `${w}/appregistry/groups/roles?structureId=${e}`,
     { headers: l(o) }
@@ -358,7 +358,7 @@ function le(e, o, r) {
 }
 const $ = __ENV.ROOT_URL;
 function ie(e, o, r) {
-  let t = v(e, o, r);
+  let t = W(e, o, r);
   if (t)
     console.log("Broadcast group already existed");
   else {
@@ -383,7 +383,7 @@ function ie(e, o, r) {
       "set broadcast group for teachers": (p) => p.status === 200
     });
     const u = J(o, r).id;
-    x(i, [u], r), t = v(e, o, r);
+    x(i, [u], r), t = W(e, o, r);
   }
   return t;
 }
@@ -400,11 +400,16 @@ function x(e, o, r) {
   }
 }
 function J(e, o) {
-  return b(e.id, o).filter(
+  return O(e.id, o).filter(
     (t) => t.name === `Teachers from group ${e.name}.` || t.name === `Enseignants du groupe ${e.name}.`
   )[0];
 }
-function v(e, o, r) {
+function pe(e, o) {
+  return O(e.id, o).filter(
+    (t) => t.name === `Students from group ${e.name}.` || t.name === `Élèves du groupe ${e.name}.`
+  )[0];
+}
+function W(e, o, r) {
   const t = l(r);
   t["content-type"] = "application/json";
   let s = c.get(
@@ -417,7 +422,7 @@ function v(e, o, r) {
 }
 export {
   U as BASE_URL,
-  S as Session,
+  b as Session,
   h as SessionMode,
   se as WS_MANAGER_SHARE,
   ne as WS_READER_SHARE,
@@ -432,14 +437,15 @@ export {
   ie as createBroadcastGroup,
   Q as createEmptyStructure,
   Z as createStructure,
-  v as getBroadcastGroup,
+  W as getBroadcastGroup,
   K as getConnectedUserId,
   l as getHeaders,
   z as getMetricValue,
   P as getRandomUser,
-  W as getRoleByName,
-  b as getRolesOfStructure,
+  v as getRoleByName,
+  O as getRolesOfStructure,
   y as getSchoolByName,
+  pe as getStudentRole,
   J as getTeacherRole,
   q as getUsersOfSchool,
   oe as importUsers,
