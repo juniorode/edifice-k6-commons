@@ -5,8 +5,11 @@ import { check, bytes, fail } from "k6";
 //@ts-ignore
 import { FormData } from "https://jslib.k6.io/formdata/0.0.2/index.js";
 import { Structure, StructureInitData } from "./models";
+//@ts-ignore
+import { URL } from "https://jslib.k6.io/url/1.0.0/index.js";
 
 const rootUrl = __ENV.ROOT_URL;
+const host = new URL(rootUrl).hostname;
 
 export function getSchoolByName(name: string, session: Session): Structure {
   let ecoles = http.get(`${rootUrl}/directory/structure/admin/list`, {
@@ -51,10 +54,13 @@ export function activateUser(user: any) {
     fd["acceptCGU"] = "true";
     const res = http.post(`${rootUrl}/auth/activation`, fd, {
       redirects: 0,
-      headers: { Host: "localhost" },
+      headers: { Host: host },
     });
     if (res.status !== 302) {
-      fail(`Could not activate user ${user.login} : ${res}`);
+      console.error(res);
+      fail(
+        `Could not activate user ${user.login} : ${res.status} - ${res.body}`,
+      );
     }
   }
 }

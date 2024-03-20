@@ -8,3 +8,4 @@ export * from "./ws.utils";
 export * from "./shares.utils";
 export * from "./communication.utils";
 export * from "./group.utils";
+export * from "./k6.utils";
