@@ -79,6 +79,7 @@ export const authenticateWeb = function (login: string, pwd: string) {
 export const switchSession = function (session: Session): Session {
   const jar = http.cookieJar();
   jar.set(rootUrl, "oneSessionId", session.token);
+  jar.set(rootUrl, "XSRF-TOKEN", session.getCookie("XSRF-TOKEN") || "");
   return session;
 };
 
