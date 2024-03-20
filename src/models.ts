@@ -58,6 +58,11 @@ export class Session {
     this.cookies = cookies;
     this.expiresAt = Date.now() + expiresIn * 1000 - 3000;
   }
+  static from(json: any) {
+    const session = new Session(json.token, json.mode, 0, json.cookies);
+    session.expiresAt = json.expiresAt;
+    return session;
+  }
   isExpired() {
     return this.expiresAt <= Date.now();
   }
